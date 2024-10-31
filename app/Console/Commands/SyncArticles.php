@@ -46,7 +46,7 @@ class SyncArticles extends Command
                 ['type', 'stiri'],
                 ['IdLanguage', $language->Id],
             ])
-                ->limit(10)->get();
+                ->get();
 
             foreach($articles as $article) {
 
