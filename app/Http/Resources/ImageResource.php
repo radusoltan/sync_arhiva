@@ -14,6 +14,15 @@ class ImageResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->Id,
+            'photographer' => $this->Photographer,
+            'description' => $this->Description,
+            'source' => $this->Source,
+            'fileName' => $this->ImageFileName,
+            'is_default' => $this->pivot->is_default === 1 ? true : false,
+            'width' => $this->width,
+            'height' => $this->height
+        ];
     }
 }

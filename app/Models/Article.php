@@ -8,12 +8,20 @@ class Article extends Model
 {
     protected $table = "Articles";
 
+    protected $casts = [
+        'PublishDate' => 'datetime',
+    ];
+
     public function fields(){
-        return $this->hasOne(Xstiri::class, 'NrArticle', 'Number');
+        return $this
+            ->hasOne(Xstiri::class, 'NrArticle', 'Number')
+            ->where('IdLanguage', $this->IdLanguage);
     }
 
     public function category(){
-        return $this->hasOne(Category::class, 'Number', "NrSection");
+        return $this
+            ->hasOne(Category::class, 'Number', "NrSection")
+            ->where('IdLanguage', $this->IdLanguage);
     }
 
     public function images(){
@@ -32,6 +40,8 @@ class Article extends Model
     }
 
     public function authors(){
-        return $this->belongsToMany(Author::class, "ArticleAuthors","fk_article_number", "fk_author_id", "Number", "id");
+        return $this
+            ->belongsToMany(Author::class, "ArticleAuthors","fk_article_number", "fk_author_id", "Number", "id")
+            ->wherePivot('fk_language_id', $this->IdLanguage);
     }
 }

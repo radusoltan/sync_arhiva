@@ -4,6 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
+use League\HTMLToMarkdown\HtmlConverter;
 
 class ArticleResource extends JsonResource
 {
@@ -14,15 +16,19 @@ class ArticleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $converter = new HtmlConverter();
+
         return [
             'id' => $this->Number,
-            'category' => $this->category->Name,
+            'category' => new CategoryResource($this->category),
             'title' => $this->Name,
-            'lead' => $this->fields->Flead,
-            'content' => $this->fields->FContinut,
-            'images' => ImageResource::collection($this->images()->get()),
+            'slug' => Str::slug($this->Name) ,
+            'lead' => $this->fields->Flead ?? null,
+            'content' => $this->fields->FContinut ?? null,
+            'images' => ImageResource::collection($this->images),
             'language' => $this->language->Code,
-            'published_at' => $this->PublishDate
+            'published_at' => $this->PublishDate,
+            'authors' => AuthorResource::collection($this->authors),
         ];
     }
 }
