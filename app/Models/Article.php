@@ -44,4 +44,12 @@ class Article extends Model
             ->belongsToMany(Author::class, "ArticleAuthors","fk_article_number", "fk_author_id", "Number", "id")
             ->wherePivot('fk_language_id', $this->IdLanguage);
     }
+
+    public function syncStatus() {
+        return $this->hasOne(SyncStatus::class, "article_id", "Number");
+    }
+
+    public function elasticIndex(){
+        return $this->hasOne(ArticleIndex::class, "article_id", "Number");
+    }
 }

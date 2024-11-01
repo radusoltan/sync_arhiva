@@ -27,7 +27,9 @@ class ArticleResource extends JsonResource
             'content' => $this->fields->FContinut ?? null,
             'images' => ImageResource::collection($this->images),
             'language' => $this->language->Code,
-            'published_at' => $this->PublishDate,
+            'published_at' => $this->PublishDate && $this->PublishDate !== '0000-00-00 00:00:00'
+                ? $this->PublishDate
+                : now()->toDateTimeString(),
             'authors' => AuthorResource::collection($this->authors),
         ];
     }
