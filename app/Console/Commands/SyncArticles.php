@@ -74,7 +74,7 @@ class SyncArticles extends Command
 //                }
 
                 foreach($article->images as $image) {
-                    Http::post('http://localhost:8000/api/import-image',[
+                    Http::post(env('APP_UPLOAD_IMAGE'),[
                         'image' => $image->ImageFileName
                     ]);
                 }
