@@ -48,7 +48,7 @@ class SyncArticles extends Command
         $this->info("Sincronizare articole - limit: $limit, offset: $offset");
 
         // Definim articolele de evitat
-        $excludedNumbers = [21, 22, 23, 24, 25, 26];
+//        $excludedNumbers = [21, 22, 23, 24, 25, 26];
 
         foreach(Language::all() as $language) {
 
@@ -60,21 +60,21 @@ class SyncArticles extends Command
                 ->whereDoesntHave('syncStatus', function($query){
                     $query->where('status','completed');
                 })
-                ->limit((int)$limit)
-                ->offset(20)
+                ->limit($limit)
+                ->offset($offset)
                 ->get();
 
             foreach($articles as $article) {
 
                 // Verificăm dacă articolul este exclus sau deja sincronizat
-                if (in_array($article->Number, $excludedNumbers) ||
-                    ArticleIndex::where('article_number', $article->Number)->exists()) {
-                    $this->output->write('S'); // Sărim peste articolul exclus sau deja importat
-                    continue;
-                }
+//                if (in_array($article->Number, $excludedNumbers) ||
+//                    ArticleIndex::where('article_number', $article->Number)->exists()) {
+//                    $this->output->write('S'); // Sărim peste articolul exclus sau deja importat
+//                    continue;
+//                }
 
                 foreach($article->images as $image) {
-                    Http::post('http://localhost:8001/api/import-image',[
+                    Http::post('http://localhost:8000/api/import-image',[
                         'image' => $image->ImageFileName
                     ]);
                 }
@@ -82,7 +82,7 @@ class SyncArticles extends Command
                 $response = $this->elastic->index([
                     'index' => 'articles',
                     'type' => '_doc',
-                    'id' => $article->Number,
+//                    'id' => $article->Number,
                     'body' => new ArticleResource($article),
                 ]);
 

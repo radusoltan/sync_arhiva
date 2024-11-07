@@ -19,7 +19,7 @@ class ArticleResource extends JsonResource
         $converter = new HtmlConverter();
 
         return [
-            'id' => $this->Number,
+            'article_id' => $this->Number,
             'category' => new CategoryResource($this->category),
             'title' => $this->Name,
             'slug' => Str::slug($this->Name) ,
