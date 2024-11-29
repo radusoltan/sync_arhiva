@@ -59,17 +59,14 @@ class SyncArticles extends Command
                 ['IdLanguage', $language->Id],
                 ['Published', 'Y']
             ])
-//                ->whereDoesntHave('syncStatus', function($query){
-//                    $query->where('status','completed');
-//                })
+                ->whereDoesntHave('syncStatus', function($query){
+                    $query->where('status','completed');
+                })
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
 
             foreach($articles as $article) {
-
-
-
                 foreach ($article->images as $articleImage) {
                     $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
                     $image = ImageManager::read($file);
