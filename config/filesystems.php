@@ -44,12 +44,15 @@ return [
 
         'sftp' => [
             'driver' => 'sftp',
-            'host' => '91.220.63.115',
-            'port' => 2022,
-            'username' => 'devmdchr',
-            'password' => env('SSH_PASS'), // sau folosește o cheie SSH
-            'root' => '/var/www/html/images/alpha',
+            'host' => env('SFTP_HOST'),
+            'port' => env('SFTP_PORT', 2022),
+            'username' => env('SFTP_USERNAME'),
+            'password' => env('SSH_PASS'),
+            'root' => env('SFTP_ROOT'),
             'timeout' => 10,
+            'permPublic' => 0755,
+            'directoryPerm' => 0755,
+            'visibility' => 'public',
         ],
 
         'alpha' => [
