@@ -54,7 +54,7 @@ return [
 
         'alpha' => [
             'driver' => 'local',
-            'root' => '/home/radu/external-hdd/alpha/',
+            'root' => '/mnt/external-hdd/alpha/',
         ],
 
         'public' => [

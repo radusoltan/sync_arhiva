@@ -68,15 +68,21 @@ class SyncArticles extends Command
 
             foreach($articles as $article) {
                 foreach ($article->images as $articleImage) {
+
                     $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
+
                     $image = ImageManager::read($file);
                     $image->scaleDown(1000);
                     $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
 
                     $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
+
                     $sshDisk = Storage::disk('sftp');
                     $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
+
                     Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
+
+                    $this->setPermissions($articleImage->ImageFileName);
                 }
 
                 $response = $this->elastic->update([
@@ -111,5 +117,14 @@ class SyncArticles extends Command
         }
 
         $this->info("\nSincronizarea s-a încheiat!");
+    }
+
+    private function setPermissions($remotePath)
+    {
+        $connection = Storage::disk('sftp')->getAdapter()->getConnection();
+
+        // Comandă pentru a schimba proprietarul și permisiunile
+        $connection->exec("chown www-data:www-data /var/www/html/images/alpha/$remotePath");
+        $connection->exec("chmod 755 /var/www/html/images/alpha/$remotePath");
     }
 }
