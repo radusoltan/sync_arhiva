@@ -105,10 +105,10 @@ class SyncArticles extends Command
 //                    'elastic_id' => $response['_id'], // ID-ul returnat de Elasticsearch
 //                ]);
 //
-//                SyncStatus::updateOrCreate([
-//                    'article_id' => $article->Number,
-//                    'status' => 'completed'
-//                ]);
+                SyncStatus::updateOrCreate([
+                    'article_id' => $article->Number,
+                    'status' => 'completed'
+                ]);
 
                 // PHPUnit-style feedback
                 $this->output->write('.');
