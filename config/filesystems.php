@@ -57,7 +57,7 @@ return [
 
         'alpha' => [
             'driver' => 'local',
-            'root' => '/mnt/external-hdd/alpha/',
+            'root' => env('EXTERNAL_HDD'),
         ],
 
         'public' => [

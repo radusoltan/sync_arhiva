@@ -74,11 +74,16 @@ class SyncArticles extends Command
                     $image = ImageManager::read($file);
                     $image->scaleDown(1000);
                     $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
-
+//
                     $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
 
+                    $this->info("Imaginea $articleImage->ImageFileName a fost optimizata");
+
                     $sshDisk = Storage::disk('sftp');
+
                     $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
+
+                    $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
 
                     Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
 
@@ -91,6 +96,7 @@ class SyncArticles extends Command
                         'doc' => new ArticleResource($article)
                     ],
                 ]);
+                $this->info("Elastic doc $article->elasticIndex->elastic_id updated");
 
 
 //                $response = $this->elastic->index([
@@ -111,7 +117,7 @@ class SyncArticles extends Command
                 ]);
 
                 // PHPUnit-style feedback
-                $this->output->write('.');
+//                $this->output->write('.');
             }
         }
 
