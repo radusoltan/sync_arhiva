@@ -82,7 +82,6 @@ class SyncArticles extends Command
 
                     Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
 
-                    $this->setPermissions($articleImage->ImageFileName);
                 }
 
                 $response = $this->elastic->update([
