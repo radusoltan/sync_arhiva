@@ -47,7 +47,7 @@ return [
             'host' => '91.220.63.115',
             'port' => 2022,
             'username' => 'devmdchr',
-            'password' => 'QuickLizzard23', // sau folosește o cheie SSH
+            'password' => env('SSH_PASS'), // sau folosește o cheie SSH
             'root' => '/var/www/html/images/alpha',
             'timeout' => 10,
         ],
