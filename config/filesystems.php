@@ -48,7 +48,7 @@ return [
             'port' => 2022,
             'username' => env('SFTP_USERNAME'),
             'password' => env('SSH_PASS'),
-            'root' => env('SFTP_ROOT'),
+            'root' => '/var/www/html/images/alpha',
             'timeout' => 10,
             'permPublic' => 0755,
             'directoryPerm' => 0755,
