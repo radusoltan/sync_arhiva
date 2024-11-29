@@ -50,6 +50,6 @@ class Article extends Model
     }
 
     public function elasticIndex(){
-        return $this->hasOne(ArticleIndex::class, "article_id", "Number");
+        return $this->hasOne(ArticleIndex::class, "article_number", "Number");
     }
 }

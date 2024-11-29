@@ -37,6 +37,26 @@ return [
             'throw' => false,
         ],
 
+        'external' => [
+            'driver' => 'local',
+            'root' => storage_path('app/external'),
+        ],
+
+        'sftp' => [
+            'driver' => 'sftp',
+            'host' => '91.220.63.115',
+            'port' => 2022,
+            'username' => 'devmdchr',
+            'password' => 'QuickLizzard23', // sau folosește o cheie SSH
+            'root' => '/var/www/html/images/alpha',
+            'timeout' => 10,
+        ],
+
+        'alpha' => [
+            'driver' => 'local',
+            'root' => '/home/radu/external-hdd/alpha/',
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

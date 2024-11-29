@@ -11,7 +11,9 @@ use App\Services\ImageService;
 use Elastic\Elasticsearch\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use function Laravel\Prompts\text;
+use Intervention\Image\Laravel\Facades\Image as ImageManager;
 
 class SyncArticles extends Command
 {
@@ -57,44 +59,54 @@ class SyncArticles extends Command
                 ['IdLanguage', $language->Id],
                 ['Published', 'Y']
             ])
-                ->whereDoesntHave('syncStatus', function($query){
-                    $query->where('status','completed');
-                })
+//                ->whereDoesntHave('syncStatus', function($query){
+//                    $query->where('status','completed');
+//                })
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
 
             foreach($articles as $article) {
 
-                // Verificăm dacă articolul este exclus sau deja sincronizat
-//                if (in_array($article->Number, $excludedNumbers) ||
-//                    ArticleIndex::where('article_number', $article->Number)->exists()) {
-//                    $this->output->write('S'); // Sărim peste articolul exclus sau deja importat
-//                    continue;
-//                }
 
-                foreach($article->images as $image) {
-                    Http::post(env('APP_UPLOAD_IMAGE'),[
-                        'image' => $image->ImageFileName
-                    ]);
+
+                foreach ($article->images as $articleImage) {
+                    $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
+                    $image = ImageManager::read($file);
+                    $image->scaleDown(1000);
+                    $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
+
+                    $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
+                    $sshDisk = Storage::disk('sftp');
+                    $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
+                    Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
                 }
 
-                $response = $this->elastic->index([
-                    'index' => 'articles',
-                    'type' => '_doc',
-//                    'id' => $article->Number,
-                    'body' => new ArticleResource($article),
+                $response = $this->elastic->update([
+                    'index' => "articles",
+                    'id' => $article->elasticIndex->elastic_id,
+                    'body' => [
+                        'doc' => new ArticleResource($article)
+                    ],
                 ]);
 
-                ArticleIndex::create([
-                    'article_number' => $article->Number,
-                    'elastic_id' => $response['_id'], // ID-ul returnat de Elasticsearch
-                ]);
 
-                SyncStatus::updateOrCreate([
-                    'article_id' => $article->Number,
-                    'status' => 'completed'
-                ]);
+//                $response = $this->elastic->index([
+//                    'index' => 'articles',
+//                    'type' => '_doc',
+////                    'id' => $article->Number,
+//                    'body' => new ArticleResource($article),
+//                ]);
+//
+//                ArticleIndex::create([
+//                    'article_number' => $article->Number,
+//                    'elastic_id' => $response['_id'], // ID-ul returnat de Elasticsearch
+//                ]);
+//
+//                SyncStatus::updateOrCreate([
+//                    'article_id' => $article->Number,
+//                    'status' => 'completed'
+//                ]);
 
                 // PHPUnit-style feedback
                 $this->output->write('.');

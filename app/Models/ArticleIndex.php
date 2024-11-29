@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ArticleIndex extends Model
 {
-
+    protected $table = 'article_indices';
     public $timestamps = false;
     protected $fillable = [
         'article_number',
@@ -14,6 +14,6 @@ class ArticleIndex extends Model
     ];
 
     public function article() {
-        return $this->belongsTo(Article::class, 'article_id', 'Number');
+        return $this->belongsTo(Article::class, 'article_id', 'Number', 'elasticIndex');
     }
 }
