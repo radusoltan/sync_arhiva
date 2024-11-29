@@ -45,7 +45,7 @@ return [
         'sftp' => [
             'driver' => 'sftp',
             'host' => env('SFTP_HOST'),
-            'port' => env('SFTP_PORT', 2022),
+            'port' => 2022,
             'username' => env('SFTP_USERNAME'),
             'password' => env('SSH_PASS'),
             'root' => env('SFTP_ROOT'),
