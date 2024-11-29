@@ -96,7 +96,7 @@ class SyncArticles extends Command
                         'doc' => new ArticleResource($article)
                     ],
                 ]);
-                $this->info("Elastic doc $article->elasticIndex->elastic_id updated");
+                $this->info("Elastic doc {$article->elasticIndex->elastic_id} updated");
 
 
 //                $response = $this->elastic->index([
