@@ -12,6 +12,7 @@ use Elastic\Elasticsearch\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Exceptions\DecoderException;
 use function Laravel\Prompts\text;
 use Intervention\Image\Laravel\Facades\Image as ImageManager;
 
@@ -71,9 +72,21 @@ class SyncArticles extends Command
 
                     $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
 
-                    $image = ImageManager::read($file);
-                    $image->scaleDown(1000);
-                    $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
+
+                    try {
+                        $image = ImageManager::read($file);
+                        $image->scaleDown(1000);
+                        $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
+                        $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
+
+                        $this->info("Imaginea $articleImage->ImageFileName a fost optimizata");
+
+                        $sshDisk = Storage::disk('sftp');
+
+                        $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
+                    } catch (DecoderException $exception){
+                        dump($exception->getMessage());
+                    }
 //
                     $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
 
