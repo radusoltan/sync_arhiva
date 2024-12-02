@@ -88,13 +88,13 @@ class SyncArticles extends Command
                         dump($exception->getMessage());
                     }
 //
-                    $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
-
-                    $this->info("Imaginea $articleImage->ImageFileName a fost optimizata");
-
-                    $sshDisk = Storage::disk('sftp');
-
-                    $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
+//                    $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
+//
+//                    $this->info("Imaginea $articleImage->ImageFileName a fost optimizata");
+//
+//                    $sshDisk = Storage::disk('sftp');
+//
+//                    $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
 
                     $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
 
