@@ -4,9 +4,13 @@ namespace App\Console\Commands;
 
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
+use App\Models\ArticleImage;
 use App\Models\ArticleIndex;
+use App\Models\Image;
 use App\Models\Language;
 use App\Models\SyncStatus;
+use App\Models\SystemPreference;
+use App\Services\ArticleService;
 use App\Services\ImageService;
 use Elastic\Elasticsearch\Client;
 use Illuminate\Console\Command;
@@ -33,10 +37,13 @@ class SyncArticles extends Command
     protected $description = 'Command description';
     private $elastic;
     private $imageService;
-    public function __construct(Client $elastic, ImageService $imageService){
+
+    private $articleService;
+    public function __construct(Client $elastic, ImageService $imageService, ArticleService $articleService){
         parent::__construct();
         $this->elastic = $elastic;
         $this->imageService = $imageService;
+        $this->articleService = $articleService;
     }
 
     /**
@@ -68,39 +75,15 @@ class SyncArticles extends Command
                 ->get();
 
             foreach($articles as $article) {
+
                 foreach ($article->images as $articleImage) {
+                    $result = $this->imageService->OptimizeImage($articleImage);
 
-                    $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
-
-
-                    try {
-                        $image = ImageManager::read($file);
-                        $image->scaleDown(1000);
-                        $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
-                        $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
-
-                        $this->info("Imaginea $articleImage->ImageFileName a fost optimizata");
-
-                        $sshDisk = Storage::disk('sftp');
-
-                        $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
-                    } catch (DecoderException $exception){
-                        dump($exception->getMessage());
+                    if (is_array($result)) {
+                        $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
                     }
-//
-//                    $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
-//
-//                    $this->info("Imaginea $articleImage->ImageFileName a fost optimizata");
-//
-//                    $sshDisk = Storage::disk('sftp');
-//
-//                    $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
-
-                    $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
-
-                    Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
-
                 }
+
 
                 $response = $this->elastic->update([
                     'index' => "articles",
@@ -109,21 +92,15 @@ class SyncArticles extends Command
                         'doc' => new ArticleResource($article)
                     ],
                 ]);
-                $this->info("Elastic doc {$article->elasticIndex->elastic_id} updated");
 
+                $this->info("Articol $article->Number adaugat in elastic cu indexul {$response['_id']}");
 
-//                $response = $this->elastic->index([
-//                    'index' => 'articles',
-//                    'type' => '_doc',
-////                    'id' => $article->Number,
-//                    'body' => new ArticleResource($article),
-//                ]);
-//
-//                ArticleIndex::create([
+//                ArticleIndex::updateOrCreate([
 //                    'article_number' => $article->Number,
 //                    'elastic_id' => $response['_id'], // ID-ul returnat de Elasticsearch
+//                    'language' => $language->Code
 //                ]);
-//
+
                 SyncStatus::updateOrCreate([
                     'article_id' => $article->Number,
                     'status' => 'completed'
@@ -135,14 +112,5 @@ class SyncArticles extends Command
         }
 
         $this->info("\nSincronizarea s-a încheiat!");
-    }
-
-    private function setPermissions($remotePath)
-    {
-        $connection = Storage::disk('sftp')->getAdapter()->getConnection();
-
-        // Comandă pentru a schimba proprietarul și permisiunile
-        $connection->exec("chown www-data:www-data /var/www/html/images/alpha/$remotePath");
-        $connection->exec("chmod 755 /var/www/html/images/alpha/$remotePath");
     }
 }

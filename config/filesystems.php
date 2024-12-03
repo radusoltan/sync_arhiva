@@ -37,6 +37,13 @@ return [
             'throw' => false,
         ],
 
+        'alpha_images' => [
+            'driver' => 'local',
+            'root' => env('IMAGE_STORAGE_PATH', '/var/www/html/images/alpha'),
+            'url' => env('APP_URL').'/images',
+            'visibility' => 'public',
+        ],
+
         'external' => [
             'driver' => 'local',
             'root' => storage_path('app/external'),

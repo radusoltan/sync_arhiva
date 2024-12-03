@@ -1,57 +1,46 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Console\Commands;
 
+use App\Models\Article;
 use App\Models\ArticleImage;
-use App\Models\Image;
 use App\Models\SystemPreference;
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Str;
-use League\HTMLToMarkdown\HtmlConverter;
+use App\Models\Image;
+use Illuminate\Console\Command;
 
-class ArticleResource extends JsonResource
+class ParceContent extends Command
 {
     /**
-     * Transform the resource into an array.
+     * The name and signature of the console command.
      *
-     * @return array<string, mixed>
+     * @var string
      */
-    public function toArray(Request $request): array
+    protected $signature = 'parce:content';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
     {
-        $converter = new HtmlConverter();
-
-
+        $article = Article::where('Number', 157748)->first();
         // image tag format: <!** Image 1 align="left" alt="FSF" sub="FSF" attr="value">
         $imagePattern = '<!\*\*[\s]*Image[\s]+([\d]+)(([\s]+(align|alt|sub|width|height|ratio|\w+)\s*=\s*("[^"]*"|[^\s]*))*)[\s]*>';
         $content = preg_replace_callback("/$imagePattern/i",
-            function ($matches) {
-                return $this->ProcessImageLink($matches, $this);
+            function ($matches) use ($article) {
+                return $this->ProcessImageLink($matches, $article);
             }
-            ,$this->fields->FContinut);
-        $lead = preg_replace_callback("/$imagePattern/i",
-        function ($matches) {
-            return $this->ProcessImageLink($matches, $this);
-        }, $this->fields->Flead);
-
-        return [
-            'article_id' => $this->Number,
-            'category' => new CategoryResource($this->category),
-            'title' => $this->Name,
-            'slug' => Str::slug($this->Name) ,
-            'lead' => $lead ?? null,
-            'content' => $content ?? null,
-            'images' => ImageResource::collection($this->images),
-            'language' => $this->language->Code,
-            'published_at' => $this->PublishDate && $this->PublishDate !== '0000-00-00 00:00:00'
-                ? $this->PublishDate
-                : now()->toDateTimeString(),
-            'authors' => AuthorResource::collection($this->authors),
-            'package' =>$this->package ? new PackageResource($this->package) : null,
-        ];
+            ,$article->fields->FContinut);
+        dump($content);
     }
 
-    private function ProcessImageLink(array $p_matches, $article) {
+    public function ProcessImageLink(array $p_matches, $article) {
 
         $imageNumber = $p_matches[1];
         $detailsString = $p_matches[2];
@@ -76,7 +65,7 @@ class ArticleResource extends JsonResource
         }
         $articleImage = ArticleImage::where([
             ['NrArticle',$article->Number],
-            ['Number',$imageNumber],
+            ['Number',$imageNumber]
         ])->first();
 
         $image = Image::find($articleImage->IdImage);
@@ -98,7 +87,7 @@ class ArticleResource extends JsonResource
         $defaultOptions = [
             'ratio' => 'EditorImageRatio',
             'width' => 'EditorImageResizeWidth',
-            'height' => 'EditorImageResizeHeight',
+            'height' => 'EditorImageResizeHeight'
         ];
 
         foreach(['ratio','width','height'] as $imageOption){

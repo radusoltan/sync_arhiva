@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Article extends Model
 {
     protected $table = "Articles";
+    protected $primaryKey = 'Number';
 
     protected $casts = [
         'PublishDate' => 'datetime',
@@ -51,5 +52,15 @@ class Article extends Model
 
     public function elasticIndex(){
         return $this->hasOne(ArticleIndex::class, "article_number", "Number");
+    }
+
+    public function packages()
+    {
+        return $this->belongsToMany(
+            Package::class,
+            'package_article_package', // numele tabelului pivot
+            'article_id',              // coloana curentă din pivot
+            'package_id'               // coloana din pivot care face legătura cu modelul țintă
+        );
     }
 }

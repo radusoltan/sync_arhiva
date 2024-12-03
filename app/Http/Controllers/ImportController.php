@@ -6,6 +6,7 @@ use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Elastic\Elasticsearch\Client;
 use Illuminate\Http\Request;
+use League\Csv\Reader;
 
 class ImportController extends Controller
 {
@@ -15,28 +16,34 @@ class ImportController extends Controller
         $this->client = $client;
     }
     public function import(){
-//        $index = 'articles';
-//        $params = [
-//            'index' => $index,
-//            'body' => [
-//                'query' => [
-//                    'match_all' => new \stdClass()
-//                ],
-//                'size' => 100
-//            ]
-//        ];
-//        $response = $this->client->search($params);
 
-        $articlesToSync = ArticleResource::collection(Article::orderBy('PublishDate', 'desc')
-            ->with('fields', 'category', "language", "authors", "images")
-            ->cursor());
+//        phpinfo();
+        return view('csv');
+    }
 
-        foreach($articlesToSync as $article) {
+    public function importCsv(Request $request){
 
+        $file = $request->file('file');
+        $csv = Reader::createFromPath($file->getRealPath(), 'r');
+        $csv->setHeaderOffset(0);
 
-            dump($article);
-        }
+        $records = $csv->getRecords();
 
-//        dump($response->asObject());
+        return view('csv', ['records' => $records]);
+    }
+
+    public function getImage(Request $request){
+//        $imageId = $request->get('ImageId');
+        $imageId = $request->get('ImageId');
+        $articleNr = $request->get('NrArticle', null);
+        $imageNr = $request->get('NrImage', null);
+        $imageRatio = $request->get('ImageRatio', null);
+        $imageResizeWidth = $request->get('ImageWidth', null);
+        $imageResizeHeight = $request->get('ImageHeight', null);
+        $imageCrop = $request->get('ImageForcecrop', null);
+        $resizeCrop = $request->get('ImageCrop', null);
+
+        dump($request->all());
+
     }
 }

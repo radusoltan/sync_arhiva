@@ -1,56 +1,41 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Services;
 
+use App\Http\Resources\AuthorResource;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ImageResource;
+use App\Models\Article;
 use App\Models\ArticleImage;
 use App\Models\Image;
 use App\Models\SystemPreference;
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
-use League\HTMLToMarkdown\HtmlConverter;
 
-class ArticleResource extends JsonResource
-{
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(Request $request): array
-    {
-        $converter = new HtmlConverter();
+class ArticleService {
 
-
+    public function transformArticle(Article $article) {
         // image tag format: <!** Image 1 align="left" alt="FSF" sub="FSF" attr="value">
         $imagePattern = '<!\*\*[\s]*Image[\s]+([\d]+)(([\s]+(align|alt|sub|width|height|ratio|\w+)\s*=\s*("[^"]*"|[^\s]*))*)[\s]*>';
         $content = preg_replace_callback("/$imagePattern/i",
-            function ($matches) {
-                return $this->ProcessImageLink($matches, $this);
+            function ($matches) use ($article) {
+                return $this->ProcessImageLink($matches, $article);
             }
-            ,$this->fields->FContinut);
-        $lead = preg_replace_callback("/$imagePattern/i",
-        function ($matches) {
-            return $this->ProcessImageLink($matches, $this);
-        }, $this->fields->Flead);
-
+            ,$article->fields->FContinut);
         return [
-            'article_id' => $this->Number,
-            'category' => new CategoryResource($this->category),
-            'title' => $this->Name,
-            'slug' => Str::slug($this->Name) ,
-            'lead' => $lead ?? null,
+            'article_id' => $article->Number,
+            'category' => new CategoryResource($article->category),
+            'title' => $article->Name,
+            'slug' => Str::slug($article->Name) ,
+            'lead' => $article->fields->Flead ?? null,
             'content' => $content ?? null,
-            'images' => ImageResource::collection($this->images),
-            'language' => $this->language->Code,
-            'published_at' => $this->PublishDate && $this->PublishDate !== '0000-00-00 00:00:00'
-                ? $this->PublishDate
+            'images' => ImageResource::collection($article->images),
+            'language' => $article->language->Code,
+            'published_at' => $article->PublishDate && $article->PublishDate !== '0000-00-00 00:00:00'
+                ? $article->PublishDate
                 : now()->toDateTimeString(),
-            'authors' => AuthorResource::collection($this->authors),
-            'package' =>$this->package ? new PackageResource($this->package) : null,
+            'authors' => AuthorResource::collection($article->authors),
         ];
     }
-
     private function ProcessImageLink(array $p_matches, $article) {
 
         $imageNumber = $p_matches[1];

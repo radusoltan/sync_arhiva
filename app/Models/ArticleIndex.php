@@ -11,6 +11,7 @@ class ArticleIndex extends Model
     protected $fillable = [
         'article_number',
         'elastic_id',
+        'language'
     ];
 
     public function article() {
