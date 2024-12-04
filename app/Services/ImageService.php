@@ -58,28 +58,14 @@ class ImageService {
             // Procesăm imaginea
             $image = ImageManager::read($file);
             $image->scaleDown(1000);
+            $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
 
-            $optimizedImagePath = storage_path('app/public/images/alpha/' . $articleImage->ImageFileName);
-            $image->save($optimizedImagePath);
-
-            // Verificăm dacă imaginea optimizată a fost salvată corect
-            if (!file_exists($optimizedImagePath)) {
-                throw new \Exception('Fișierul optimizat nu a fost generat: ' . $articleImage->ImageFileName);
-            }
-
-            // Citim imaginea optimizată pentru încărcare
-            $optimizedImage = file_get_contents($optimizedImagePath);
-            if ($optimizedImage === false) {
-                throw new \Exception('Nu s-a putut citi fișierul optimizat: ' . $articleImage->ImageFileName);
-            }
-
-            // Încărcăm imaginea pe serverul SFTP
+            $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
             $sshDisk = Storage::disk('sftp');
             $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
 
             // Curățăm fișierele temporare
             Storage::disk('local')->delete('temp/' . $articleImage->ImageFileName);
-            Storage::disk('public')->delete('images/alpha/' . $articleImage->ImageFileName);
 
             return [
                 'width' => $image->width(),
@@ -92,10 +78,7 @@ class ImageService {
             dump($exception->getFile());
         }
 
-        // Ștergem imaginea optimizată dacă s-a generat dar a apărut o eroare
-        if (isset($optimizedImagePath) && file_exists($optimizedImagePath)) {
-            unlink($optimizedImagePath);
-        }
+
     }
 
 }

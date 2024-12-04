@@ -76,13 +76,13 @@ class SyncArticles extends Command
 
             foreach($articles as $article) {
 
-                foreach ($article->images as $articleImage) {
-                    $result = $this->imageService->OptimizeImage($articleImage);
-
-                    if (is_array($result)) {
-                        $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
-                    }
-                }
+//                foreach ($article->images as $articleImage) {
+//                    $result = $this->imageService->OptimizeImage($articleImage);
+//
+//                    if (is_array($result)) {
+//                        $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
+//                    }
+//                }
 
 
                 $response = $this->elastic->update([
