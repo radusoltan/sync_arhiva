@@ -60,7 +60,9 @@ class ImageService {
                 'url' => env('APP_URL').'/images/'.$articleImage->ImageFileName,
             ];
         } catch (DecoderException $exception) {
-            dump($exception);
+            dump($exception->getMessage());
+            dump($exception->getFile());
+
         }
         Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
 
