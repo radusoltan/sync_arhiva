@@ -42,42 +42,34 @@ class ImageService {
         return $image->height();
     }
 
-    public function OptimizeImage(Image $articleImage)
-    {
+    public function OptimizeImage(Image $articleImage){
+        ini_set('memory_limit', -1);
+
         try {
             $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
+            if ($file){
+                $image = ImageManager::read($file);
+                $image->scaleDown(1000);
+                $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
+                $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
+                $sshDisk = Storage::disk('sftp');
+                $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
 
-            // Verificăm dacă fișierul este o imagine validă
-            $tempPath = storage_path('app/temp/' . $articleImage->ImageFileName);
-            Storage::disk('local')->put('temp/' . $articleImage->ImageFileName, $file);
-            if (!@getimagesize($tempPath)) {
-                Storage::disk('local')->delete('temp/' . $articleImage->ImageFileName);
-                throw new \Exception('Fișierul nu este o imagine validă: ' . $articleImage->ImageFileName);
+                Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
+
+                return [
+                    'width' => $image->width(),
+                    'height' => $image->height(),
+                    'fileName' => $articleImage->ImageFileName,
+                    'url' => env('APP_URL').'/images/'.$articleImage->ImageFileName,
+                ];
             }
 
-            // Procesăm imaginea
-            $image = ImageManager::read($file);
-            $image->scaleDown(1000);
-            $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
-
-            $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
-            $sshDisk = Storage::disk('sftp');
-            $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
-
-            // Curățăm fișierele temporare
-            Storage::disk('local')->delete('temp/' . $articleImage->ImageFileName);
-
-            return [
-                'width' => $image->width(),
-                'height' => $image->height(),
-                'fileName' => $articleImage->ImageFileName,
-                'url' => env('APP_URL') . '/images/' . $articleImage->ImageFileName,
-            ];
-        } catch (\Exception $exception) {
-            dump($exception->getMessage());
-            dump($exception->getFile());
+        } catch (DecoderException $exception) {
+            dump($exception);
         }
 
+//        dump($optimizedImage);
 
     }
 

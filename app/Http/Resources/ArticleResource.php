@@ -47,7 +47,7 @@ class ArticleResource extends JsonResource
                 ? $this->PublishDate
                 : now()->toDateTimeString(),
             'authors' => AuthorResource::collection($this->authors),
-            'package' =>$this->package ? new PackageResource($this->package) : null,
+            'package' => $this->package ? new PackageResource($this->package) : null,
         ];
     }
 
@@ -120,7 +120,7 @@ class ArticleResource extends JsonResource
         $imgZoomLink = '';
         $editorImageZoom = SystemPreference::where('varname','EditorImageZoom')->first();
         if ($editorImageZoom->value === 'Y' && strlen($imageOptions)>0){
-            $imgZoomLink = '/images/'.$image->ImageFileName;
+            $imgZoomLink = '/api/images/alpha/'.$image->ImageFileName;
         }
         $html = '';
         if (isset($detailsArray['align']) && $detailsArray['align']) {

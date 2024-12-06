@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('article_indices', function (Blueprint $table) {
             $table->id();
-            $table->integer('article_number')->unique();
-            $table->string('elastic_id')->unique();
+            $table->unsignedBigInteger('article_number');
+            $table->string('elastic_id');
+            $table->string('language');
+
+            $table->unique(['article_number', 'elastic_id', 'language']);
         });
     }
 

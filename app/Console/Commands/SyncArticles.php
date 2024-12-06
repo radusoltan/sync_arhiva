@@ -53,12 +53,8 @@ class SyncArticles extends Command
     {
 
         $limit = (int) $this->option('limit');
-        $offset = (int) $this->option('offset');
 
-        $this->info("Sincronizare articole - limit: $limit, offset: $offset");
-
-        // Definim articolele de evitat
-//        $excludedNumbers = [21, 22, 23, 24, 25, 26];
+        $this->info("Sincronizare articole - limit: $limit");
 
         foreach(Language::all() as $language) {
 
@@ -71,43 +67,49 @@ class SyncArticles extends Command
                     $query->where('status','completed');
                 })
                 ->limit($limit)
-                ->offset($offset)
                 ->get();
 
             foreach($articles as $article) {
 
-//                foreach ($article->images as $articleImage) {
-//                    $result = $this->imageService->OptimizeImage($articleImage);
-//
-//                    if (is_array($result)) {
-//                        $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
-//                    }
-//                }
+                // Elasticsearch actions
 
+                if (!$article->elasticIndex){
+                    $response = $this->elastic->index([
+                        'index' => 'articles',
+                        'type' => "_doc",
+                        'body' => new ArticleResource($article),
+                    ]);
+                    $this->info("Articol $article->Number adaugat in elastic cu indexul {$response['_id']}");
+                } else {
+                    $response = $this->elastic->update([
+                        'index' => 'articles',
+                        'id' => $article->elasticIndex->elastic_id,
+                        'body'  => [
+                            'doc' => new ArticleResource($article),
+                        ]
+                    ]);
 
-                $response = $this->elastic->update([
-                    'index' => "articles",
-                    'id' => $article->elasticIndex->elastic_id,
-                    'body' => [
-                        'doc' => new ArticleResource($article)
-                    ],
+                    $this->info("Articol $article->Number updatat in elastic cu indexul {$response['_id']}");
+                }
+
+                foreach ($article->images as $articleImage) {
+                    $result = $this->imageService->OptimizeImage($articleImage);
+
+                    if (is_array($result)) {
+                        $this->info("Imaginea $articleImage->ImageFileName a fost transferata");
+                    }
+                }
+
+                ArticleIndex::updateOrCreate([
+                    'article_number' => $article->Number,
+                    'elastic_id' => $response['_id'], // ID-ul returnat de Elasticsearch
+                    'language' => $language->Code
                 ]);
-
-                $this->info("Articol $article->Number adaugat in elastic cu indexul {$response['_id']}");
-
-//                ArticleIndex::updateOrCreate([
-//                    'article_number' => $article->Number,
-//                    'elastic_id' => $response['_id'], // ID-ul returnat de Elasticsearch
-//                    'language' => $language->Code
-//                ]);
 
                 SyncStatus::updateOrCreate([
                     'article_id' => $article->Number,
                     'status' => 'completed'
                 ]);
-
-                // PHPUnit-style feedback
-//                $this->output->write('.');
             }
         }
 

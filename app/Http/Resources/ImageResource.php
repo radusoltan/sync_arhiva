@@ -24,8 +24,7 @@ class ImageResource extends JsonResource
             'fileName' => $this->ImageFileName,
             'is_default' => $this->pivot->is_default === 1 ? true : false,
             'width' => $this->width,
-            'height' => $this->height,
-            'url' => $this->ImageFileName
+            'height' => $this->height
         ];
     }
 }
