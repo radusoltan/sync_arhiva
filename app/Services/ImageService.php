@@ -43,7 +43,7 @@ class ImageService {
     }
 
     public function OptimizeImage(Image $articleImage){
-        ini_set('memory_limit', -1);
+//        ini_set('memory_limit', -1);
 
         try {
             $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
