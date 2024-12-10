@@ -44,6 +44,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'beta_images' => [
+            'driver' => 'local',
+            'root' => env('BETA_IMAGE_STORAGE_PATH', '/var/www/html/images/beta'),
+            'url' => env('APP_URL').'/images/beta',
+            'visibility' => 'public',
+        ],
+
         'external' => [
             'driver' => 'local',
             'root' => storage_path('app/external'),
@@ -55,7 +62,7 @@ return [
             'port' => 2022,
             'username' => env('SFTP_USERNAME'),
             'password' => env('SSH_PASS'),
-            'root' => '/var/www/html/images/alpha',
+            'root' => '/var/www/html/images/beta',
             'timeout' => 10,
             'permPublic' => 0755,
             'directoryPerm' => 0755,
@@ -65,6 +72,11 @@ return [
         'alpha' => [
             'driver' => 'local',
             'root' => env('EXTERNAL_HDD'),
+        ],
+
+        'beta' => [
+            'driver' => 'local',
+            'root' => env('BETA_EXTERNAL_HDD'),
         ],
 
         'public' => [

@@ -59,7 +59,7 @@ class SyncArticles extends Command
         foreach(Language::all() as $language) {
 
             $articles = Article::where([
-                ['type', 'stiri'],
+                ['type', 'stire'],
                 ['IdLanguage', $language->Id],
                 ['Published', 'Y']
             ])

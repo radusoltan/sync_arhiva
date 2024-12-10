@@ -28,11 +28,11 @@ class ArticleResource extends JsonResource
             function ($matches) {
                 return $this->ProcessImageLink($matches, $this);
             }
-            ,$this->fields->FContinut);
-        $lead = preg_replace_callback("/$imagePattern/i",
-        function ($matches) {
-            return $this->ProcessImageLink($matches, $this);
-        }, $this->fields->Flead);
+            ,$this->fields->Fcontinut);
+//        $lead = preg_replace_callback("/$imagePattern/i",
+//        function ($matches) {
+//            return $this->ProcessImageLink($matches, $this);
+//        }, $this->fields->Flead);
 
         return [
             'article_id' => $this->Number,
@@ -120,7 +120,7 @@ class ArticleResource extends JsonResource
         $imgZoomLink = '';
         $editorImageZoom = SystemPreference::where('varname','EditorImageZoom')->first();
         if ($editorImageZoom->value === 'Y' && strlen($imageOptions)>0){
-            $imgZoomLink = '/api/images/alpha/'.$image->ImageFileName;
+            $imgZoomLink = '/api/images/beta/'.$image->ImageFileName;
         }
         $html = '';
         if (isset($detailsArray['align']) && $detailsArray['align']) {

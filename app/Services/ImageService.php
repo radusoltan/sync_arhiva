@@ -46,16 +46,16 @@ class ImageService {
 //        ini_set('memory_limit', -1);
 
         try {
-            $file = Storage::disk('alpha')->get($articleImage->ImageFileName);
+            $file = Storage::disk('beta')->get($articleImage->ImageFileName);
             if ($file){
                 $image = ImageManager::read($file);
                 $image->scaleDown(1000);
-                $image->save(storage_path('app/public/images/alpha/' . $articleImage->ImageFileName));
-                $optimizedImage = Storage::disk('public')->get('images/alpha/' . $articleImage->ImageFileName);
+                $image->save(storage_path('app/public/images/beta/' . $articleImage->ImageFileName));
+                $optimizedImage = Storage::disk('public')->get('images/beta/' . $articleImage->ImageFileName);
                 $sshDisk = Storage::disk('sftp');
                 $sshDisk->put($articleImage->ImageFileName, $optimizedImage);
 
-                Storage::disk('public')->delete('images/alpha/'.$articleImage->ImageFileName);
+                Storage::disk('public')->delete('images/beta/'.$articleImage->ImageFileName);
 
                 return [
                     'width' => $image->width(),
@@ -67,6 +67,7 @@ class ImageService {
 
         } catch (DecoderException $exception) {
             dump($exception);
+
         }
 
 //        dump($optimizedImage);

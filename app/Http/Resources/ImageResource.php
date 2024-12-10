@@ -20,7 +20,7 @@ class ImageResource extends JsonResource
             'id' => $this->Id,
             'photographer' => $this->Photographer,
             'description' => $this->Description,
-            'source' => 'alpha',
+            'source' => 'beta',
             'fileName' => $this->ImageFileName,
             'is_default' => $this->pivot->is_default === 1 ? true : false,
             'width' => $this->width,

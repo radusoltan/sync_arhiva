@@ -38,17 +38,30 @@ class SyncCategories extends Command
 
             $categories = Category::where('IdLanguage', $language->Id)->get();
             foreach ($categories as $category) {
-                $this->elastic->index([
+
+                $response = $this->elastic->search([
                     'index' => 'categories',
-                    'type' => '_doc',
-                    'body' => [
-                        'category_id' => $category->Number,
-                        'name' => $category->Name,
-                        'slug' => Str::slug($category->Name),
-                        'language' => $category->language->Code,
-                        'in_menu' => false
-                    ]
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                ['term' => ['slug.keyword' => $category->ShortName]],
+                                ['term' => ['language.keyword' => $language->Code]],
+                            ],
+                        ],
+                    ],
                 ]);
+                dump($response->asObject()->hits->total->value > 0);
+//                $this->elastic->index([
+//                    'index' => 'categories',
+//                    'type' => '_doc',
+//                    'body' => [
+//                        'category_id' => $category->Number,
+//                        'name' => $category->Name,
+//                        'slug' => Str::slug($category->Name),
+//                        'language' => $category->language->Code,
+//                        'in_menu' => false
+//                    ]
+//                ]);
             }
 
         }
