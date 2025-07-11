@@ -15,8 +15,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(Client::class, function ($app){
             return ClientBuilder::create()
-                ->setHosts($app['config']->get('services.elastic.hosts'))
-                ->setApiKey($app['config']->get('services.elastic.api_key'))
+                ->setHosts(["https://165.22.89.204:9200"])
+                ->setApiKey("QUkxQnJKUUJEMTI0UWlTVkNsNXU6NmJaaHE3UHdSdWEwd1B5SkNFamg5UQ==")
                 ->setSSLVerification(false)
                 ->build();
         });
